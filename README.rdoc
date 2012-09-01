@@ -1,9 +1,98 @@
 = bisque
 
-Description goes here.
+Bisque is meant to ease the pain of "reporting"-style ad-hoc SQL queries in ActiveRecord. Most of the time, I see (and am guilty of having executed myself) solutions to this problem in one of two styles:
+
+== Fugly: New scopes / class methods / find_by_sql
+
+*Example*:
+
+  class HooHah < ActiveRecord::Base
+    scope :some_ridiculous_reporting_query, select(<<-RUBY
+        MOFO_OBSCURE_SQL_FUNCTION(some_table.some_column) AS some_non_column_field
+      RUBY
+      ).joins(<<-RUBY
+        INNER JOIN god_knows_what ON some_computationally_difficult_calculation = 5
+      RUBY
+      )
+  end
+
+*Pros*: You get to use the existing ActiveRecord::Base hot mustard to execute your queries, parse them to fields on instances of the class, and handle them as collections
+
+*Cons*: Your reports are ultimately instances of some model - but most reports are not that at all! They're aggregate views over your models, and trying to cram them into existing instances forces you to conflate two very distinct concepts in the domain.
+
+== Even Fuglier: Query straight from the connection, then use the raw result or OpenStruct it in order to achieve some measure of separation
+
+*Example*:
+
+  results = ActiveRecord::Base.connection.execute <<-RUBY
+    SELECT MOFO_OBSCURE_SQL_FUNCTION(some_table.some_column) AS some_non_column_field FROM umpteen_thousand_tables
+    INNER JOIN god_knows_what ON some_computationally_difficult_calculation = 5
+  RUBY
+
+  results.each do |row|
+    #ARGGHH
+  end
+
+*Pros*: Avoids the conflation of the report with models it doesn't represent
+*Cons*: Pretty much everything else. Lots of boilerplate.
+
+== Help Arrives!
+
+Enter Bisque. Bisque provides a simple way of defining Report classes, each with its own query and designated parameters, as well as a way to dynamically define methods on its rows. Bisque will translate any returned datatypes into their AR analog, and in general help you keep your jazz organized and tight. Here's how to use it:
+
+=== Step 1: Define a report class
+
+Reports inherit from Bisque::Report, and have the following API:
+
+  class FooReport < Bisque::Report
+    query <<-RUBY
+      SELECT
+        SUM(o.total) AS total,
+        MEAN(o.total) AS average
+      FROM
+        orders o
+      INNER JOIN
+        customers c ON c.id = o.customer_id
+      WHERE
+        o.store_type = :store_type
+        AND
+        c.id = :customer_id
+    RUBY
+
+    defaults :store_type => "digital"
+
+    rows do
+      def total_in_cents
+        total*100
+      end
+    end
+  end
+
+==== Bisque::Report.query
+Every report *must* have a query. Define it here, using colon-prefixed words to designate parameters
+
+==== Bisque::Report.defaults
+This method takes a hash of defaults, if any, for the parameters in your query. Each parameter must either have some default set for it, or be passed a value at runtime (see instantiatino below)
+
+==== Bisque::Report.rows
+If you wish to define custom methods on each individual row item of the report, define them here, and they will be evaluated in the context of the dynamically generated row class (which will be namespaced the same as the report class and named <YourReportClassName>Row).
+
+=== Step 2: Instantiate the report
+To use run a given report, just create a new instance of it. Each report instance is enumerable and so may be iterated over as usual.
+
+  report = FooReport.new :customer_id => 42
+
+You must provide a hash of values for each parameter (that doesn't have a default) defined in the query, or a Bisque::MissingParameterException will be raised and the report will not be executed.
+
+If you have defined any custom row methods (via the rows block discussed above), you may call them on each item of the iterator as one would expect:
+
+  puts report.first.total_in_cents
+
+== In closing
+For the time being, Bisque supports PostgreSQL exclusively (db-agnositicism is broken due to the necessities associated with typecasting dynamically selected values), because I virtually never use anything else and wanted this gem out there ASAP for my own purposes. I sincerely doubt I'll ever get around to extending it for support of other AR-supported dbs, but if one of you fine folks would like to do so, submit a pull request as described below and I'll happily include it. Of course, any other improvements, feature requests, etc. will be considered and taken into account - I would like to see this grow into a highly versatile tool, so suggest away!
 
 == Contributing to bisque
- 
+
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it.
 * Fork the project.
