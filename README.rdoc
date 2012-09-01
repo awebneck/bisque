@@ -34,11 +34,17 @@ Bisque is meant to ease the pain of "reporting"-style ad-hoc SQL queries in Acti
   end
 
 *Pros*: Avoids the conflation of the report with models it doesn't represent
+
 *Cons*: Pretty much everything else. Lots of boilerplate.
 
 == Help Arrives!
 
 Enter Bisque. Bisque provides a simple way of defining Report classes, each with its own query and designated parameters, as well as a way to dynamically define methods on its rows. Bisque will translate any returned datatypes into their AR analog, and in general help you keep your jazz organized and tight. Here's how to use it:
+
+=== Installation:
+Just slip the following into your Gemfile:
+
+  gem 'bisque'
 
 === Step 1: Define a report class
 
