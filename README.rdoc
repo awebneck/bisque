@@ -20,7 +20,7 @@ Bisque is meant to ease the pain of "reporting"-style ad-hoc SQL queries in Acti
 
 *Cons*: Your reports are ultimately instances of some model - but most reports are not that at all! They're aggregate views over your models, and trying to cram them into existing instances forces you to conflate two very distinct concepts in the domain.
 
-== Even Fuglier: Query straight from the connection, then use the raw result or OpenStruct it in order to achieve some measure of separation
+== Even Fuglier: Query straight from the connection, then use the raw result or OpenStruct in order to achieve some measure of separation
 
 *Example*:
 
@@ -78,24 +78,24 @@ Reports inherit from Bisque::Report, and have the following API:
 Every report *must* have a query. Define it here, using colon-prefixed words to designate parameters
 
 ==== Bisque::Report.defaults
-This method takes a hash of defaults, if any, for the parameters in your query. Each parameter must either have some default set for it, or be passed a value at runtime (see instantiatino below)
+This method takes a hash of defaults - if extant - for the parameters in your query. Each parameter must either have some default value, or be passed a value at instantiation (see below)
 
 ==== Bisque::Report.rows
-If you wish to define custom methods on each individual row item of the report, define them here, and they will be evaluated in the context of the dynamically generated row class (which will be namespaced the same as the report class and named <YourReportClassName>Row).
+If you wish to define custom methods on each individual row of the report, define them here; they will be evaluated in the context of the dynamically generated row class (which will be namespaced identically to the report class itself,  and named <YourReportClassName>Row).
 
 === Step 2: Instantiate the report
-To use run a given report, just create a new instance of it. Each report instance is enumerable and so may be iterated over as usual.
+To run a given report, just create a new instance of it. Each report instance is enumerable and so may be iterated over as usual.
 
   report = FooReport.new :customer_id => 42
 
-You must provide a hash of values for each parameter (that doesn't have a default) defined in the query, or a Bisque::MissingParameterException will be raised and the report will not be executed.
+You must provide a hash of values for each parameter defined in the query without a default value, or a Bisque::MissingParameterException will be raised and the report will not be executed.
 
-If you have defined any custom row methods (via the rows block discussed above), you may call them on each item of the iterator as one would expect:
+If you have defined any custom row methods via the rows block discussed above, you may call them on each item of the iterator as one would expect:
 
   puts report.first.total_in_cents
 
 == In closing
-For the time being, Bisque supports PostgreSQL exclusively (db-agnositicism is broken due to the necessities associated with typecasting dynamically selected values), because I virtually never use anything else and wanted this gem out there ASAP for my own purposes. I sincerely doubt I'll ever get around to extending it for support of other AR-supported dbs, but if one of you fine folks would like to do so, submit a pull request as described below and I'll happily include it. Of course, any other improvements, feature requests, etc. will be considered and taken into account - I would like to see this grow into a highly versatile tool, so suggest away!
+For the time being, Bisque supports PostgreSQL exclusively because I virtually never use anything else and wanted this gem out there ASAP for my own purposes (db-agnositicism is broken due to the particulars associated with typecasting dynamically selected values). I sincerely doubt I'll ever get around to extending it for support of other AR-supported dbs, but if one of you fine folks would like to do so, submit a pull request as described below and I'll happily include it. Of course, any other improvements, feature requests, etc. will be considered and taken into account - I would like to see this grow into a highly versatile tool, so suggest away!
 
 == Contributing to bisque
 
@@ -106,6 +106,12 @@ For the time being, Bisque supports PostgreSQL exclusively (db-agnositicism is b
 * Commit and push until you are happy with your contribution.
 * Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
 * Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+
+== TODO:
+* PostgreSQL views and "pseudo-materialized" views. Maybe a DSL for defining triggers, etc therefor. Dunno, have to think about it - the materialized views typically work perfectly well when implemented as read-only models. (and you get associations that way)
+* Maybe parameter validation of some sort - would that be necessary?
+* Implement some kind of pagination
+* Refine DSL and performance improvements - not sure architecture is the most ideal, but designed top-down and seems to work ok.
 
 == Copyright
 
