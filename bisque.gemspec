@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "bisque"
-  s.version = "0.1.1"
+  s.version = "0.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jeremy Holland"]
-  s.date = "2012-09-01"
+  s.date = "2013-07-04"
   s.description = "Bisque exists to ease the organizational pain of having to attach reporting and ad-hoc queries to ActiveRecord models in order to get any class-like behavior out of them by providing a new class and DSL for that express purpose."
   s.email = "jeremy@jeremypholland.com"
   s.extra_rdoc_files = [
@@ -42,7 +42,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/awebneck/bisque"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.15"
+  s.rubygems_version = "1.8.23"
   s.summary = "A simple gem for ease of use in generating reports with ActiveRecord"
 
   if s.respond_to? :specification_version then
