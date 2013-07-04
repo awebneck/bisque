@@ -9,7 +9,7 @@ module Bisque
       @sql = self.class.query.dup
       self.class.params.each do |param|
         value = @params[param]
-        raise Bisque::MissingParameterException, "Missing parameter :#{param} for construction of #{self.class} - please provide a value for this parameter to the constructor or define a default." if value.nil?
+        raise Bisque::MissingParameterException, "Missing parameter :#{param} for construction of #{self.class} - please provide a value for this parameter to the constructor or define a default." if value.nil? && !self.class.optional.include?(param.intern)
         @sql.gsub!(/(?<!:):#{param}/, sanitize_and_sqlize(value))
       end
       @results = ActiveRecord::Base.connection.execute @sql
@@ -106,6 +106,15 @@ module Bisque
           @defaults.merge! hash
         else
           @defaults || {}
+        end
+      end
+
+      def optional(*keys)
+        if keys
+          @optionals ||= []
+          @optionals = (@optionals + keys).uniq
+        else
+          @optionals || []
         end
       end
 

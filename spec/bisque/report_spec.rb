@@ -97,6 +97,10 @@ describe Bisque::Report do
         lambda { BarReport.new }.should raise_error Bisque::MissingParameterException
       end
 
+      it "should not raise a Bisque::MissingParameterException if the query designates parameters but no defaults, it is constructed with no arguments, and the designated parameters are designated as optional" do
+        lambda { CornReport.new }.should_not raise_error
+      end
+
       it "should accept a hash of parameters" do
         lambda { BarReport.new :corn => 'cheese' }.should_not raise_error
       end

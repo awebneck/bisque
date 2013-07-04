@@ -41,6 +41,11 @@ class FunReport < Bisque::Report
   end
 end
 
+class CornReport < Bisque::Report
+  query "SELECT * FROM frobnitzs WHERE name = :corn"
+  optional :corn
+end
+
 class ParamReport < Bisque::Report
   query "SELECT * FROM frobnitzs WHERE name = :name AND description = :description AND score = :score AND cost = :cost AND numberish = :numberish AND created_at = :created_at AND timish = :timish AND summed_at = :summed_at AND created_on = :created_on AND boolish = :boolish AND binny = :binny"
 end
