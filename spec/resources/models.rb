@@ -31,6 +31,11 @@ class QuuxReport < Bisque::Report
   default :slip, 'paper'
 end
 
+class PorkReport < Bisque::Report
+  query "SELECT * FROM frobnitzs WHERE name = :slip"
+  default :slip do 'pasta' end
+end
+
 class FunReport < Bisque::Report
   query "SELECT * FROM frobnitzs WHERE name = :corn"
   default :slip, 'paper'

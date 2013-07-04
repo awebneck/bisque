@@ -159,6 +159,11 @@ describe Bisque::Report do
         b = BazReport.new :corn => 'powder'
         b.params.should == {:corn => 'powder'}
       end
+
+      it "should return the hash of defaults achieved by calling the proc if the default value is a proc" do
+        b = PorkReport.new
+        b.params.should == {:slip => 'pasta'}
+      end
     end
 
     describe "sql" do

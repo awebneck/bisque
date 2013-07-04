@@ -6,6 +6,9 @@ module Bisque
 
     def initialize(params={})
       @params = self.class.defaults.merge params
+      @params.each do |k,v|
+        @params[k] = v.call if v.is_a?(Proc)
+      end
       @sql = self.class.query.dup
       self.class.params.each do |param|
         value = @params[param]
@@ -95,9 +98,9 @@ module Bisque
       end
 
     class << self
-      def default(key, val)
+      def default(key, val=nil, &block)
         @defaults ||= {}
-        @defaults[key] = val
+        @defaults[key] = val || block
       end
 
       def defaults(hash=nil)
