@@ -10,7 +10,7 @@ module Bisque
       self.class.params.each do |param|
         value = @params[param]
         raise Bisque::MissingParameterException, "Missing parameter :#{param} for construction of #{self.class} - please provide a value for this parameter to the constructor or define a default." if value.nil?
-        @sql.gsub!(/:#{param}/, sanitize_and_sqlize(value))
+        @sql.gsub!(/(?<!:):#{param}/, sanitize_and_sqlize(value))
       end
       @results = ActiveRecord::Base.connection.execute @sql
       extract_datatypes
@@ -112,7 +112,7 @@ module Bisque
       def query(qstr=nil)
         if qstr
           @qstr = qstr.strip
-          @params = qstr.scan(/:\w+/).map { |p| p.gsub(/:/,'').intern }
+          @params = qstr.scan(/(?<!:):\w+/).map { |p| p.gsub(/:/,'').intern }
         else
           raise Bisque::MissingQueryException, "Bisque Report #{self} missing query definition." if @qstr.nil?
           @qstr

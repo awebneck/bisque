@@ -34,6 +34,7 @@ end
 RSpec.configure do |config|
   dir = File.dirname(__FILE__)
   dbconfig = {
+     'host' => '127.0.0.1',
      'adapter' => 'postgresql',
      'encoding' => 'unicode',
      'database' => 'bisque_development',
