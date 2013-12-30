@@ -26,6 +26,19 @@ describe Bisque::Report do
       end
     end
 
+    describe "method_params" do
+      it "should return an empty array if no method parameters exist" do
+        FooReport.method_params.should be_a Array
+        FooReport.method_params.should be_empty
+      end
+
+      it "should return a list of the method parameters extracted from the query if present" do
+        CorkReport.method_params.should be_a Array
+        CorkReport.method_params.length.should == 1
+        CorkReport.method_params.should include :slam
+      end
+    end
+
     describe "defaults" do
       it "should return an empty hash if no defaults exist" do
         BarReport.defaults.should be_a Hash
@@ -97,8 +110,16 @@ describe Bisque::Report do
         lambda { BarReport.new }.should raise_error Bisque::MissingParameterException
       end
 
+      it "should raise a Bisque::MissingParameterException if the query designates method parameters but no corresponding methods" do
+        lambda { CorkReport.new }.should raise_error Bisque::MissingParameterException
+      end
+
       it "should not raise a Bisque::MissingParameterException if the query designates parameters but no defaults, it is constructed with no arguments, and the designated parameters are designated as optional" do
         lambda { CornReport.new }.should_not raise_error
+      end
+
+      it "should not raise a Bisque::MissingParameterException if the query designates method parameters with corresponding methods" do
+        lambda { CheeseReport.new }.should_not raise_error Bisque::MissingParameterException
       end
 
       it "should accept a hash of parameters" do
@@ -179,7 +200,7 @@ describe Bisque::Report do
                             :created_on => Date.new(2012,2,1),
                             :boolish => true,
                             :binny => "\x00\x01\x02\x03"
-        p.sql.should == "SELECT * FROM frobnitzs WHERE name = 'test' AND description = 'testagain' AND score = 12 AND cost = 34.12 AND numberish = 123.35583 AND created_at = '2012-01-01 05:00:00.000000' AND timish = '2012-01-01 06:00:00.000000' AND summed_at = '2012-01-01 07:00:00.000000' AND created_on = '2012-02-01' AND boolish = 't' AND binny = ''"
+        p.sql.should == "SELECT * FROM frobnitzs WHERE name = 'test' AND description = 'testagain' AND score = 12 AND cost = 34.12 AND numberish = 123.35583 AND created_at = '2012-01-01 05:00:00.000000' AND timish = '2012-01-01 06:00:00.000000' AND summed_at = '2012-01-01 07:00:00.000000' AND created_on = '2012-02-01' AND boolish = 't' AND binny = '' AND chili = 'hahahah'"
       end
     end
 

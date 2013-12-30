@@ -11,5 +11,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column :created_on, :date
     t.column :boolish, :boolean
     t.column :binny, :binary
+    t.column :chili, :string
   end
 end
