@@ -7,7 +7,7 @@ module Bisque
     def initialize(params={})
       @params = self.class.defaults.merge params
       @params.each do |k,v|
-        @params[k] = v.call if v.is_a?(Proc)
+        @params[k] = instance_eval(&v) if v.is_a?(Proc)
       end
       @sql = self.class.query.dup
       self.class.params.each do |param|
